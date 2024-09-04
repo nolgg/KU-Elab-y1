@@ -4,31 +4,43 @@ class Student:
         self.firstname = firstname
         self.lastname = lastname
         self.courses = []
-        self.num_course = 0
+        self.num_course = []
         self.total_credit = 0
         self.advisor = None
         self.major = None
 
     def add_course(self, course):
-        if not any(c.code == course.code and c.title == course.title and c.credit == course.credit for c in self.courses) and (self.total_credit + course.credit) <= 25:
-            self.num_course += 1
+        if not any(c == course.credit for c in self.courses) and (self.total_credit + course.credit) <= 25:
             self.total_credit += course.credit
-            self.courses.append(course)
+            self.courses.append(course.title)
+            self.num_course.append(course.course_id)
+            return True
+        return False
 
     def get_course(self):
-        num = [str(course.code) for course in self.courses]
+        num = [str(k) for k in self.num_course]
         return " ".join(num)
 
     def drop_course(self, course):
-        for c in self.courses:
-            if c.code == course.code and c.title == course.title and c.credit == course.credit:
-                self.total_credit -= c.credit
-                self.courses.remove(c)
-                self.num_course -= 1
-                if self.num_course == 0:
-                    self.courses = ['']
-                return True
-        return False
+        T_course_id = course.course_id
+        T_title = course.title
+        T_credit = course.credit
+        if T_title in self.courses and T_course_id in self.num_course:
+            if self.courses[-1] == T_title:
+                self.courses.append('')
+                self.courses.remove(T_title)
+                self.num_course.remove(T_course_id)
+                self.total_credit -= T_credit
+            
+            elif len(self.courses) > 1:
+                self.courses.remove(T_title)
+                self.num_course.remove(T_course_id)
+                self.total_credit -= T_credit
+            return True
+            
+        else:
+            return False
+            
 
     def set_advisor(self, advisor):
         self.advisor = advisor
@@ -41,9 +53,9 @@ class Student:
 
 class Course:
     
-    def __init__(self, title, code, credit):
+    def __init__(self, title, course_id, credit):
         self.title = title
-        self.code = code
+        self.course_id = course_id
         self.credit = credit
 
 class Teacher:
@@ -61,18 +73,18 @@ class Major:
         self.faculty = faculty
 
     def __str__(self):
-        return f'{self.name} ({self.id})'
+        return f'{self.name} {self.faculty} ({self.id})'
 
 
-a = Student(1503,'pong','pol')
-print(a)
-a.add_course(Course('title',1309,15))
-print(a)
-a.add_course(Course('title1',1340,10))
-print(a)
-print(a.drop_course(Course('title',1309,15)))
-print(a.courses)
-print(a.courses)
-a.set_advisor(Teacher('hello','last',1234))
-a.set_major(Major(321,'engi','Engineerrr'))
-print(a)
+c_ls = "01219111 01219113 01219245 01219221 01204212 01219213 01420113 01420114 01420111".split(" ")
+ad = Teacher("Preeda", "Lerdpongvipusana", "E901")
+m = Major("E17", "Software & Knowledge Engineering", "Engineering")
+s = Student(5610546231, "Chinnaporn", "Soonue")
+
+s.set_advisor(ad)
+s.set_major(m)
+for i in c_ls:
+    s.add_course(Course("sth", i, 1))
+
+print(s)
+print(s.total_credit)
