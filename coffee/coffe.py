@@ -14,25 +14,39 @@ class CupOfCoffee:
         self.coffee_type = coffee_type
         self.drnking_type = drinking_type
         self.price = price 
-        self.addon = {}
-        self.coffee_menu = ''
+        self.addon = []
         self.addon_menu = ''
 
-    def set_addon(self):
-        pass
+    def set_addon_dic(self,addon_menu):
+        for i in range(len(addon_menu)):
+            self.addon[addon_menu[i][0]] = 0
+
+    def set_coffee_menu(self,coffee_menu):
+        self.coffee_menu = coffee_menu
 
     def get_coffee_type(self,coffee_type):
-        self.coffee_type = coffee_type
+        self.coffee_type = coffee_type # <= list (espresso, 1)
 
-    def get_drinking_type(self,drinking_type):
-        self.drnking_type = drinking_type
+    def get_drinking_type(self,drinking_type_list):
+        self.drnking_type = drinking_type_list[0]
+        self.drinking_type_number = drinking_type_list[1]
+        self.price += self.get_price(self.coffee_menu,self.coffee_type[1],self.drinking_type_number)
 
     def get_menu(self,coffe_menu,addon_menu):
         self.coffee_menu = coffe_menu
         self.addon_menu = addon_menu    
 
     def set_add_on(self, one_add_on, one_add_on_price):
-        pass
+        self.addon[one_add_on] += 1
+        self.price += one_add_on_price
+
+    def set_add_on2(self, one_add_on_list, one_add_on_price):
+        self.price += one_add_on_price
+        self.addon = one_add_on_list
+        
+
+    def get_price(self,coffee_menu,coffee_type_num,drinking_type_number):
+        return int(coffee_menu[coffee_type_num - 1][drinking_type_number])
 
 
     def __repr__(self):
@@ -109,11 +123,37 @@ def runStarBUGcafe_main():
     def get_drinking_type(i,coffee_type_num):
         while True:
             try: 
-                drinking_type = input(f'Cup #{i+1}, please select drinking type {get_HCF(coffee_type_num)}')
-                if check_drinking_type(drinking_type,get_HCF(coffee_type_num)):
-                    return drinking_type.upper()
-                print('ERROR: Invalid input!')
-            except: print('ERROR: Invalid input!')
+                if len(get_HCF(coffee_type_num).split(',')) > 1:
+                    drinking_type = input(f'Cup #{i+1}, please select drinking type ({get_HCF(coffee_type_num)}): ')
+                    if check_drinking_type(drinking_type,get_HCF(coffee_type_num)):
+                        return [drinking_type.upper(),get_drinking_type_num(drinking_type.upper())]
+                    print(' ERROR: Invalid input!')
+                else:
+                    drinking_type = get_HCF(coffee_type_num)[0]
+                    return [drinking_type.upper(),get_drinking_type_num(drinking_type.upper())]
+            except: print(' ERROR: Invalid input!')
+    
+    def get_drinking_type_num(HCF):
+        if HCF == "H":
+            return 1
+        elif HCF == "C":
+            return 2
+        elif HCF == "F":
+            return 3
+
+    def get_addon(i):
+        price = 0
+        addon_list = []
+        while True:
+            addon_num = get_input(f'Cup #{i+1}, please select add on (enter for exit): ')
+            if addon_num:
+                if addon_num >= 1 and addon_num <= len(addon_menu):
+                    price += int(addon_menu[addon_num - 1][1])
+                    addon_list.append(addon_menu[addon_num - 1][0])
+                else: print(' ERROR: Invalid input!')
+            else: break
+        return addon_list,price
+            
 
     while True:
         welcome()
@@ -123,8 +163,14 @@ def runStarBUGcafe_main():
         num_coffee = get_input('How many cups of coffee to order? ',int)
         for i in range(num_coffee):
             cof = CupOfCoffee()
+            cof.set_coffee_menu(coffe_menu)
+            cof.set_addon_dic(addon_menu)
             cof.get_coffee_type(get_coffee_type(i))
             cof.get_drinking_type(get_drinking_type(i,cof.coffee_type[1]))
+            cof.set_add_on2(get_addon(i))
+            
+            
+            
             
 
 ############################################## Your main starBUG coffee system starts here
