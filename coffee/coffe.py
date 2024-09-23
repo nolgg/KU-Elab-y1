@@ -21,6 +21,12 @@ class CupOfCoffee:
     def set_addon(self):
         pass
 
+    def get_coffee_type(self,coffee_type):
+        self.coffee_type = coffee_type
+
+    def get_drinking_type(self,drinking_type):
+        self.drnking_type = drinking_type
+
     def get_menu(self,coffe_menu,addon_menu):
         self.coffee_menu = coffe_menu
         self.addon_menu = addon_menu    
@@ -66,9 +72,60 @@ def runStarBUGcafe_main():
         for i,k in enumerate(addon_menu):
             print(f'{i+1}.{k[0]:<20}{int(k[1]):>2}')
         print('++++++++++++++++++++++++++++++++')
-    while True:
-        pass
+    
+    def get_input(word,type_input = int):
+        tmp = ''
+        while True:
+            try:
+                tmp = type_input(input(word))
+                break
+            except: print(' ERROR: Invalid input!')
+        return tmp
 
+    def get_coffee_type(i):
+        while True:
+            coffee_type = get_input(f'Cup #{i+1}, please select type of coffee: ')
+            if coffee_type >= 1 and coffee_type <= len(coffe_menu):
+                return [coffe_menu[coffee_type-1][0],coffee_type]
+            print(' ERROR: Invalid input!')
+
+    def get_HCF(coffee_type_num):
+        coffe_list = coffe_menu[coffee_type_num - 1]
+        strings = []
+        if int(coffe_list[1]) != 0:
+            strings.append('H')
+        if int(coffe_list[2]) != 0:
+            strings.append('C')
+        if int(coffe_list[3]) != 0:
+            strings.append('F')
+        return ",".join(strings)
+
+
+    def check_drinking_type(drinking_type,HCF):
+        if drinking_type.upper() in HCF.split(','):
+            return True
+        return False
+
+    def get_drinking_type(i,coffee_type_num):
+        while True:
+            try: 
+                drinking_type = input(f'Cup #{i+1}, please select drinking type {get_HCF(coffee_type_num)}')
+                if check_drinking_type(drinking_type,get_HCF(coffee_type_num)):
+                    return drinking_type.upper()
+                print('ERROR: Invalid input!')
+            except: print('ERROR: Invalid input!')
+
+    while True:
+        welcome()
+        name = input("Enter customer's name: ")
+        CB = CustomerBill(name)
+        if name == 'Good day': break
+        num_coffee = get_input('How many cups of coffee to order? ',int)
+        for i in range(num_coffee):
+            cof = CupOfCoffee()
+            cof.get_coffee_type(get_coffee_type(i))
+            cof.get_drinking_type(get_drinking_type(i,cof.coffee_type[1]))
+            
 
 ############################################## Your main starBUG coffee system starts here
 #---------------------------------------------------------------------------------------
